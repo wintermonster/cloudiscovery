@@ -383,7 +383,7 @@ Make sure you have installed [pre-commit](https://pre-commit.com/#installation).
 
 Install development requirements:
 ```sh
-pip install -U -r requirements.txt -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt
 ```
 
 Add precommit hooks:
