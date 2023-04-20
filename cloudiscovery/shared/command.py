@@ -137,6 +137,18 @@ class CommandRunner(object):
             title=title,
             filename=filename,
         )
+        report.csv_report(
+            resources=filtered_resources,
+            resource_relations=filtered_relations,
+            title=title,
+            filename=filename,
+        )
+        report.excel_report(
+            resources=filtered_resources,
+            resource_relations=filtered_relations,
+            title=title,
+            filename=filename,
+        )
 
         # TODO: Export in csv/json/yaml/tf... future...
         # ....exporttf(checks)....

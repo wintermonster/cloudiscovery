@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List
 
 from jinja2 import Environment, FileSystemLoader
+import pandas as pd
 
 from shared.common import Resource, ResourceEdge, message_handler
 from shared.diagram import PATH_DIAGRAM_OUTPUT
@@ -151,3 +152,52 @@ class Report(object):
 
             message_handler("\n\nHTML report generated", "HEADER")
             message_handler("Check your HTML report: " + name_output, "OKBLUE")
+
+    def create_resource_dataframe(
+        self,
+        resources: List[Resource],
+        resource_relations: List[ResourceEdge],
+    ):
+        rows = []
+        for resource in resources:
+            d = {}
+            d['Type'] = resource.digest.type
+            d['Service'] = resource.group
+            d['Name'] = resource.name
+            d['Id'] = resource.digest.id
+            d['Tags'] = str({tag.key: tag.value for tag in resource.tags})
+            rows.append(d)
+        df = pd.DataFrame(rows, index=range(1, len(rows)+1))
+        df.index.rename('S.No.', inplace=True)
+        return df
+
+    def csv_report(
+        self,
+        resources: List[Resource],
+        resource_relations: List[ResourceEdge],
+        title: str,
+        filename: str,
+    ):
+        name_output = PATH_REPORT_HTML_OUTPUT + filename + ".csv"
+        df = self.create_resource_dataframe(resources, resource_relations)
+        df.to_csv(name_output)
+
+        message_handler("\n\nCSV report generated", "HEADER")
+        message_handler("Check your CSV report: " + name_output, "OKBLUE")
+
+    def excel_report(
+        self,
+        resources: List[Resource],
+        resource_relations: List[ResourceEdge],
+        title: str,
+        filename: str,
+    ):
+        name_output = PATH_REPORT_HTML_OUTPUT + filename + ".xlsx"
+        df = self.create_resource_dataframe(resources, resource_relations)
+
+        with pd.ExcelWriter(name_output) as writer:
+            for gname, group in df.groupby('Service'):
+                group.to_excel(writer, sheet_name=str(gname))
+
+        message_handler("\n\nExcel report generated", "HEADER")
+        message_handler("Check your Excel report: " + name_output, "OKBLUE")
